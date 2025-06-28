@@ -5,6 +5,7 @@ import {
   InventoryItem,
   Tag,
   CreateItemData,
+  UpdateItemData,
 } from '@/types/inventory';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:6789/api';
@@ -40,6 +41,40 @@ export const inventoryService = {
 
     if (!res.ok) {
       const msg = (await res.json())?.message ?? 'Errore creazione item';
+      throw new Error(msg);
+    }
+    return res.json();
+  },
+
+  async updateItem(itemId: string, data: UpdateItemData): Promise<InventoryItem> {
+    const res = await fetch(`${API_URL}/items/${itemId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      const msg = (await res.json())?.message ?? 'Errore aggiornamento item';
+      throw new Error(msg);
+    }
+    return res.json();
+  },
+
+  async updateItemQuantity(itemId: string, quantity: number): Promise<InventoryItem> {
+    const res = await fetch(`${API_URL}/items/${itemId}/quantity`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({ quantity }),
+    });
+
+    if (!res.ok) {
+      const msg = (await res.json())?.message ?? 'Errore aggiornamento quantità';
       throw new Error(msg);
     }
     return res.json();

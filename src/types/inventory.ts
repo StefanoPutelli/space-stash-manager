@@ -9,6 +9,7 @@ export interface InventoryItem {
   _id: string;
   name: string;
   description: string;
+  quantity: number;
   tags: Tag[];
   dateAdded: string;
   addedBy: string;
@@ -17,5 +18,13 @@ export interface InventoryItem {
 export interface CreateItemData {
   name: string;
   description: string;
+  quantity: number;
   tagIds: string[];
+}
+
+export interface UpdateItemData {
+  name?: string;
+  description?: string;
+  quantity?: number;
+  tagIds?: string[];
 }

@@ -1,17 +1,18 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Plus, Tag as TagIcon, User, Trash2 } from 'lucide-react';
+import { Search, Plus, Tag as TagIcon, User, Trash2, Edit } from 'lucide-react';
 import { InventoryItem, Tag } from '@/types/inventory';
 import { inventoryService } from '@/services/inventoryService';
 import { useAuth } from '@/hooks/useAuth';
 import { AddItemDialog } from '@/components/AddItemDialog';
 import { ManageTagsDialog } from '@/components/ManageTagsDialog';
 import { DeleteItemDialog } from '@/components/DeleteItemDialog';
+import { EditItemDialog } from '@/components/EditItemDialog';
+import { QuantityControls } from '@/components/QuantityControls';
 import { useToast } from '@/hooks/use-toast';
 
 export const InventoryDashboard = () => {
@@ -24,6 +25,7 @@ export const InventoryDashboard = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showTagsDialog, setShowTagsDialog] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<InventoryItem | null>(null);
+  const [itemToEdit, setItemToEdit] = useState<InventoryItem | null>(null);
   const [isDeletingItem, setIsDeletingItem] = useState(false);
 
   const { user, logout } = useAuth();
@@ -120,6 +122,18 @@ export const InventoryDashboard = () => {
         ? prev.filter(id => id !== tagId)
         : [...prev, tagId]
     );
+  };
+
+  const handleItemUpdated = (updatedItem: InventoryItem) => {
+    setItems(prev => prev.map(item => 
+      item._id === updatedItem._id ? updatedItem : item
+    ));
+  };
+
+  const handleQuantityUpdate = (updatedItem: InventoryItem) => {
+    setItems(prev => prev.map(item => 
+      item._id === updatedItem._id ? updatedItem : item
+    ));
   };
 
   const filteredItems = useMemo(() => {
@@ -289,6 +303,7 @@ export const InventoryDashboard = () => {
                   <TableRow className="bg-slate-50">
                     <TableHead className="font-semibold">Nome</TableHead>
                     <TableHead className="font-semibold">Descrizione</TableHead>
+                    <TableHead className="font-semibold">Quantità</TableHead>
                     <TableHead className="font-semibold">Tag</TableHead>
                     <TableHead className="font-semibold">Data Aggiunta</TableHead>
                     <TableHead className="font-semibold">Aggiunto da</TableHead>
@@ -298,7 +313,7 @@ export const InventoryDashboard = () => {
                 <TableBody>
                   {filteredItems.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                      <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                         {searchQuery || selectedTagIds.length > 0
                           ? "Nessun oggetto trovato con i filtri applicati"
                           : "Nessun oggetto nell'inventario"
@@ -311,6 +326,12 @@ export const InventoryDashboard = () => {
                         <TableCell className="font-medium">{item.name}</TableCell>
                         <TableCell className="text-gray-600">{item.description}</TableCell>
                         <TableCell>
+                          <QuantityControls 
+                            item={item} 
+                            onQuantityUpdate={handleQuantityUpdate}
+                          />
+                        </TableCell>
+                        <TableCell>
                           <div className="flex flex-wrap gap-1">
                             {item.tags.map(tag => (
                               <Badge key={tag._id} variant="outline" className={`text-xs text-white`} style={{ backgroundColor: tag.color }}>
@@ -322,14 +343,24 @@ export const InventoryDashboard = () => {
                         <TableCell className="text-gray-600">{formatDate(item.dateAdded)}</TableCell>
                         <TableCell className="text-gray-600">{item.addedBy}</TableCell>
                         <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setItemToDelete(item)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setItemToEdit(item)}
+                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setItemToDelete(item)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -362,6 +393,14 @@ export const InventoryDashboard = () => {
         item={itemToDelete}
         onConfirm={handleDeleteItem}
         isLoading={isDeletingItem}
+      />
+
+      <EditItemDialog
+        open={!!itemToEdit}
+        onOpenChange={() => setItemToEdit(null)}
+        item={itemToEdit}
+        tags={tags}
+        onItemUpdated={handleItemUpdated}
       />
     </div>
   );
