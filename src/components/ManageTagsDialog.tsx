@@ -32,24 +32,24 @@ interface ManageTagsDialogProps {
   onTagDeleted: (tagId: string) => void;
 }
 
-export const ManageTagsDialog = ({ 
-  open, 
-  onOpenChange, 
-  tags, 
-  onTagCreated, 
-  onTagDeleted 
+export const ManageTagsDialog = ({
+  open,
+  onOpenChange,
+  tags,
+  onTagCreated,
+  onTagDeleted
 }: ManageTagsDialogProps) => {
   const [newTagName, setNewTagName] = useState('');
   const [newTagColor, setNewTagColor] = useState('#000000');
   const [isLoading, setIsLoading] = useState(false);
   const [tagToDelete, setTagToDelete] = useState<Tag | null>(null);
   const [isDeletingTag, setIsDeletingTag] = useState(false);
-  
+
   const { toast } = useToast();
 
   const handleCreateTag = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!newTagName.trim()) {
       toast({
         title: "Errore",
@@ -69,13 +69,13 @@ export const ManageTagsDialog = ({
     }
 
     setIsLoading(true);
-    
+
     try {
       const newTag = await inventoryService.createTag(newTagName.trim(), newTagColor.trim());
       onTagCreated(newTag);
       setNewTagName('');
       setNewTagColor('#000000');
-      
+
       toast({
         title: "Tag creato",
         description: `Il tag "${newTag.name}" è stato aggiunto`,
@@ -95,12 +95,12 @@ export const ManageTagsDialog = ({
     if (!tagToDelete) return;
 
     setIsDeletingTag(true);
-    
+
     try {
       await inventoryService.deleteTag(tagToDelete._id);
       onTagDeleted(tagToDelete._id);
       setTagToDelete(null);
-      
+
       toast({
         title: "Tag eliminato",
         description: `Il tag "${tagToDelete.name}" è stato eliminato`,
@@ -129,7 +129,7 @@ export const ManageTagsDialog = ({
               Visualizza, crea ed elimina tag per organizzare l'inventario
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-6">
             {/* Create New Tag */}
             <div className="space-y-3">
@@ -167,10 +167,13 @@ export const ManageTagsDialog = ({
                 {tags.map(tag => (
                   <div key={tag._id} className="flex items-center justify-between mb-2 p-2 bg-white rounded border">
                     <Badge
+                      key={tag._id}
                       variant="outline"
-                      style={{ backgroundColor: tag.color }}
-                      className="text-white"
                     >
+                      <div
+                        className="w-3 h-3 rounded-full mr-2"
+                        style={{ backgroundColor: tag.color }}
+                      />
                       {tag.name}
                     </Badge>
                     <Button
@@ -213,7 +216,7 @@ export const ManageTagsDialog = ({
             <AlertDialogCancel disabled={isDeletingTag}>
               Annulla
             </AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleDeleteTag}
               disabled={isDeletingTag}
               className="bg-red-600 hover:bg-red-700"

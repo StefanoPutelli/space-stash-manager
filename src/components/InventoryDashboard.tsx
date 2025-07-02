@@ -13,6 +13,7 @@ import { ManageTagsDialog } from '@/components/ManageTagsDialog';
 import { DeleteItemDialog } from '@/components/DeleteItemDialog';
 import { EditItemDialog } from '@/components/EditItemDialog';
 import { QuantityControls } from '@/components/QuantityControls';
+import { QuantityUsedControls } from './QuantityUsedControls';
 import { useToast } from '@/hooks/use-toast';
 
 export const InventoryDashboard = () => {
@@ -258,20 +259,21 @@ export const InventoryDashboard = () => {
                   {tags.map(tag => {
                     console.log(tag);
                     return <Badge
-                      key={tag._id}
-                      variant="outline"
-                      className={`cursor-pointer transition-all border`}
-                      style={{
-                        backgroundColor: selectedTagIds.includes(tag._id) ? '#3b82f6' : tag.color,
-                        color: '#fff',
-                      }}
-                      onClick={() => toggleTagFilter(tag._id)}
-                    >
-                      {tag.name}
-                      {selectedTagIds.includes(tag._id) && (
-                        <span className="ml-1 font-bold">✓</span>
-                      )}
-                    </Badge>
+                    key={tag._id}
+                    variant="outline"
+                    className={`cursor-pointer transition-all ${
+                      selectedTagIds.includes(tag._id)
+                        ? 'bg-blue-100 border-blue-300'
+                        : 'hover:bg-gray-100'
+                    }`}
+                    onClick={() => toggleTagFilter(tag._id)}
+                  >
+                    <div
+                      className="w-3 h-3 rounded-full mr-2"
+                      style={{ backgroundColor: tag.color }}
+                    />
+                    {tag.name}
+                  </Badge>
                   })}
                 </div>
               </div>
@@ -303,11 +305,12 @@ export const InventoryDashboard = () => {
                   <TableRow className="bg-slate-50">
                     <TableHead className="font-semibold">Nome</TableHead>
                     <TableHead className="font-semibold">Descrizione</TableHead>
-                    <TableHead className="font-semibold">Quantità</TableHead>
                     <TableHead className="font-semibold">Tag</TableHead>
-                    <TableHead className="font-semibold">Data Aggiunta</TableHead>
-                    <TableHead className="font-semibold">Aggiunto da</TableHead>
-                    <TableHead className="font-semibold">Azioni</TableHead>
+                    <TableHead className="font-semibold w-[12%]">Quantità</TableHead>
+                    <TableHead className="font-semibold w-[12%]">Utilizzato</TableHead>
+                    <TableHead className="font-semibold w-[12%]">Data Aggiunta</TableHead>
+                    {/* <TableHead className="font-semibold">Aggiunto da</TableHead> */}
+                    <TableHead className="font-semibold w-[10%]">Azioni</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -326,22 +329,35 @@ export const InventoryDashboard = () => {
                         <TableCell className="font-medium">{item.name}</TableCell>
                         <TableCell className="text-gray-600">{item.description}</TableCell>
                         <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {item.tags.map(tag => (
+                              <Badge
+                              key={tag._id}
+                              variant="outline"
+                            >
+                              <div
+                                className="w-3 h-3 rounded-full mr-2"
+                                style={{ backgroundColor: tag.color }}
+                              />
+                              {tag.name}
+                            </Badge>
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell>
                           <QuantityControls 
                             item={item} 
                             onQuantityUpdate={handleQuantityUpdate}
                           />
                         </TableCell>
                         <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            {item.tags.map(tag => (
-                              <Badge key={tag._id} variant="outline" className={`text-xs text-white`} style={{ backgroundColor: tag.color }}>
-                                {tag.name}
-                              </Badge>
-                            ))}
-                          </div>
+                          <QuantityUsedControls 
+                            item={item} 
+                            onQuantityUpdate={handleQuantityUpdate}
+                          />
                         </TableCell>
                         <TableCell className="text-gray-600">{formatDate(item.dateAdded)}</TableCell>
-                        <TableCell className="text-gray-600">{item.addedBy}</TableCell>
+                        {/* <TableCell className="text-gray-600">{item.addedBy}</TableCell> */}
                         <TableCell>
                           <div className="flex gap-1">
                             <Button

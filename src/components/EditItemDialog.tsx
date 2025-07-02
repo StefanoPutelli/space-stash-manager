@@ -120,7 +120,7 @@ export const EditItemDialog = ({
             />
           </div>
 
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="quantity">Quantità</Label>
             <Input
               id="quantity"
@@ -130,7 +130,7 @@ export const EditItemDialog = ({
               onChange={(e) => setFormData(prev => ({ ...prev, quantity: parseInt(e.target.value) || 0 }))}
               required
             />
-          </div>
+          </div> */}
 
           <div className="space-y-2">
             <Label>Tag</Label>

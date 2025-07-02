@@ -80,6 +80,23 @@ export const inventoryService = {
     return res.json();
   },
 
+  async updateUsedItemQuantity(itemId: string, quantity: number): Promise<InventoryItem> {
+    const res = await fetch(`${API_URL}/items/${itemId}/usedquantity`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({ quantity }),
+    });
+
+    if (!res.ok) {
+      const msg = (await res.json())?.message ?? 'Errore aggiornamento quantità usata';
+      throw new Error(msg);
+    }
+    return res.json();
+  },
+
   async deleteItem(itemId: string): Promise<void> {
     const res = await fetch(`${API_URL}/items/${itemId}`, {
       method: 'DELETE',

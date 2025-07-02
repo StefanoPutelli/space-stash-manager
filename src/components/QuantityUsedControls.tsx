@@ -11,7 +11,7 @@ interface QuantityControlsProps {
   onQuantityUpdate: (updatedItem: InventoryItem) => void;
 }
 
-export const QuantityControls = ({ item, onQuantityUpdate }: QuantityControlsProps) => {
+export const QuantityUsedControls = ({ item, onQuantityUpdate }: QuantityControlsProps) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const { toast } = useToast();
 
@@ -20,7 +20,7 @@ export const QuantityControls = ({ item, onQuantityUpdate }: QuantityControlsPro
     
     setIsUpdating(true);
     try {
-      const updatedItem = await inventoryService.updateItemQuantity(item._id, newQuantity);
+      const updatedItem = await inventoryService.updateUsedItemQuantity(item._id, newQuantity);
       onQuantityUpdate(updatedItem);
       toast({
         title: "Quantità aggiornata",
@@ -42,20 +42,20 @@ export const QuantityControls = ({ item, onQuantityUpdate }: QuantityControlsPro
       <Button
         variant="outline"
         size="sm"
-        onClick={() => updateQuantity(item.quantity - 1)}
-        disabled={isUpdating || item.quantity <= 0 || item.used >= item.quantity}
+        onClick={() => updateQuantity(item.used - 1)}
+        disabled={isUpdating || item.used <= 0}
         className="h-8 w-8 p-0"
       >
         <Minus className="w-3 h-3" />
       </Button>
       <span className="text-sm font-medium min-w-[2rem] text-center">
-        {item.quantity}
+        {item.used}
       </span>
       <Button
         variant="outline"
         size="sm"
-        onClick={() => updateQuantity(item.quantity + 1)}
-        disabled={isUpdating}
+        onClick={() => updateQuantity(item.used + 1)}
+        disabled={isUpdating || item.used >= item.quantity}
         className="h-8 w-8 p-0"
       >
         <Plus className="w-3 h-3" />
